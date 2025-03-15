@@ -15,6 +15,7 @@ import {
   getImageReceivedMessage,
   getDocumentReceivedMessage
 } from '@/lib/language';
+import { langFromCode, langToCode } from '@/lib/languages';
 
 export default function Home() {
   const [messages, setMessages] = useState<MessageType[]>([]);
@@ -23,6 +24,7 @@ export default function Home() {
   const [showWelcome, setShowWelcome] = useState(true);
   const [language, setLanguage] = useState<SupportedLanguage>('english');
   const [userLanguage, setUserLanguage] = useState<SupportedLanguage>('english');
+  const [processingImage, setProcessingImage] = useState(false);
 
   // Handle language change
   const handleLanguageChange = (newLanguage: SupportedLanguage) => {
@@ -44,7 +46,7 @@ export default function Home() {
     }
   }, [messages.length, language]);
 
-  const handleSendMessage = (content: string) => {
+  const handleSendMessage = async (content: string) => {
     // Detect user's language
     const detectedLanguage = detectLanguage(content);
     setUserLanguage(detectedLanguage);
@@ -64,24 +66,60 @@ export default function Home() {
     setIsTyping(true);
     setShowWelcome(false);
 
-    // Simulate AI response (in a real app, this would be an API call)
-    setTimeout(() => {
-      // Respond in user's preferred language or the detected language of their message
-      const responseLanguage = detectedLanguage;
+    try {
+      // Convert language names to ISO codes for the API
+      const sourceLanguageCode = detectedLanguage === 'english' ? 'en' : 'es';
+      const targetLanguageCode = detectedLanguage === 'english' ? 'es' : 'en'; // Translate to the opposite language
+      
+      // Call the translation API
+      const response = await fetch('/api/translate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          text: content,
+          sourceLanguage: sourceLanguageCode,
+          targetLanguage: targetLanguageCode,
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Translation failed');
+      }
+      
+      const data = await response.json();
+      
+      // Create the AI response
+      const translatedResponse = data.translatedText;
       const assistantMessage: MessageType = {
         id: uuidv4(),
         role: 'assistant',
-        content: getRandomResponse(responseLanguage),
+        content: translatedResponse || getRandomResponse(detectedLanguage),
         timestamp: new Date(),
       };
 
       setMessages(prev => [...prev, assistantMessage]);
+    } catch (error) {
+      console.error('Error processing message:', error);
+      toast.error('Sorry, there was an error processing your message.');
+      
+      // Fallback to random response
+      const assistantMessage: MessageType = {
+        id: uuidv4(),
+        role: 'assistant',
+        content: getRandomResponse(detectedLanguage),
+        timestamp: new Date(),
+      };
+      
+      setMessages(prev => [...prev, assistantMessage]);
+    } finally {
       setIsTyping(false);
-    }, 2000);
+    }
   };
 
-  const handleSendImage = (image: File) => {
-    // In a real app, you would upload this image to a server
+  const handleSendImage = async (image: File) => {
+    // Add user message
     const userMessage: MessageType = {
       id: uuidv4(),
       role: 'user',
@@ -91,20 +129,76 @@ export default function Home() {
 
     setMessages(prev => [...prev, userMessage]);
     setIsTyping(true);
+    setProcessingImage(true);
     setShowWelcome(false);
 
-    // Simulate AI response
-    setTimeout(() => {
+    try {
+      // Create a FormData object to send the image
+      const formData = new FormData();
+      formData.append('image', image);
+      formData.append('action', 'analyze'); // 'analyze', 'translate', or 'extract'
+      
+      // Determine target language based on current language
+      const targetLanguage = language === 'english' ? 'en' : 'es';
+      formData.append('targetLanguage', targetLanguage);
+      
+      // Call the image analysis API
+      const response = await fetch('/api/analyze-image', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      if (!response.ok) {
+        throw new Error('Image analysis failed');
+      }
+      
+      const data = await response.json();
+      
+      // Create response based on the analysis
+      let responseContent = '';
+      
+      if (data.phi4Analysis) {
+        // Use Phi-4 analysis as the primary content
+        responseContent = data.phi4Analysis;
+      } else if (data.googleVision) {
+        // Fallback to a summary of Google Vision results
+        const labels = data.googleVision.labels.slice(0, 5).map((l: any) => l.description).join(', ');
+        const text = data.googleVision.text || '';
+        
+        responseContent = language === 'english' 
+          ? `I see the following in your image: ${labels}. ${text ? `I also found this text: "${text}"` : ''}`
+          : `Veo lo siguiente en tu imagen: ${labels}. ${text ? `También encontré este texto: "${text}"` : ''}`;
+      } else {
+        // Fallback message
+        responseContent = getImageReceivedMessage(language);
+      }
+      
+      // Add assistant response
+      const assistantMessage: MessageType = {
+        id: uuidv4(),
+        role: 'assistant',
+        content: responseContent,
+        timestamp: new Date(),
+      };
+
+      setMessages(prev => [...prev, assistantMessage]);
+    } catch (error) {
+      console.error('Error processing image:', error);
+      toast.error('Sorry, there was a problem processing your image.');
+      
+      // Fallback to basic response
       const assistantMessage: MessageType = {
         id: uuidv4(),
         role: 'assistant',
         content: getImageReceivedMessage(language),
         timestamp: new Date(),
       };
-
+      
       setMessages(prev => [...prev, assistantMessage]);
+    } finally {
       setIsTyping(false);
-    }, 2000);
+      setProcessingImage(false);
+    }
   };
 
   const handleSendDocument = (doc: File) => {

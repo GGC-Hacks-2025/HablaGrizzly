@@ -1,0 +1,31 @@
+steps:
+  # Build the container image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/speak-grizzly:$COMMIT_SHA', '.']
+  
+  # Push the container image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/speak-grizzly:$COMMIT_SHA']
+  
+  # Deploy container image to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'speak-grizzly'
+      - '--image=gcr.io/$PROJECT_ID/speak-grizzly:$COMMIT_SHA'
+      - '--region=us-central1'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+      - '--memory=1Gi'
+      - '--set-env-vars=HUGGINGFACE_API_KEY=${_HUGGINGFACE_API_KEY}'
+      - '--set-env-vars=GOOGLE_APPLICATION_CREDENTIALS_JSON=${_GOOGLE_APPLICATION_CREDENTIALS_JSON}'
+      - '--set-env-vars=NODE_ENV=production'
+
+images:
+  - 'gcr.io/$PROJECT_ID/speak-grizzly:$COMMIT_SHA'
+
+substitutions:
+  _HUGGINGFACE_API_KEY: '' # Set this in Cloud Build trigger
+  _GOOGLE_APPLICATION_CREDENTIALS_JSON: '' # Set this in Cloud Build trigger 

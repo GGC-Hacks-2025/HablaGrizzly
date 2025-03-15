@@ -1,5 +1,6 @@
 const nextConfig = {
   /* config options here */
+  output: 'standalone', // Optimized for container deployments
   distDir: process.env.NODE_ENV === "production" ? "build" : ".next",
   images: {
     domains: [
