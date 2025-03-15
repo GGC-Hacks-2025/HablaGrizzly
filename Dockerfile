@@ -4,13 +4,14 @@ FROM node:20-alpine AS base
 FROM base AS deps
 WORKDIR /app
 
+# Install pnpm
+RUN npm install -g pnpm
+
 # Copy package files
-COPY package.json ./
-# If you use pnpm, uncomment this line instead
-# COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml ./
 
 # Install dependencies based on the preferred package manager
-RUN npm install
+RUN pnpm install --frozen-lockfile
 
 # Rebuild the source code only when needed
 FROM base AS builder
@@ -23,8 +24,11 @@ COPY . .
 # Uncomment the following line in case you want to disable telemetry during the build.
 ENV NEXT_TELEMETRY_DISABLED 1
 
+# Install pnpm
+RUN npm install -g pnpm
+
 # Build the Next.js application
-RUN npm run build
+RUN pnpm build
 
 # Production image, copy all the files and run next
 FROM base AS runner
