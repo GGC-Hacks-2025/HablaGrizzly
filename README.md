@@ -17,27 +17,22 @@
 <hr>
 
 ## Technologies Used
-**Frontend:** <br>
-**Backend:** <br>
-**Cloud Integration:** <br>
-**AI Models:** <br>
+**Frontend:** React, Bun, TypeScript, Next.js, CSS<br>
+**Backend & Cloud Integration:** Google Cloud Vision <br>
+**AI Integration:** Hugging Face <br>
 
 <hr>
 
 ## HablaGrizzly Members
 **Anaya Yorke**
 - 3rd year Data Science student. <br>
-- "" <br>
 
 **Matilda Vazquez-Guzman**
 - 4th year Software Development student. <br>
-- "" <br>
 
 **Shanteria Johnson**
 - 2nd year Data Science student <br>
-- "" <br>
 
 <hr>
 
-<br>
 Created for HackGGC IV at Georgia Gwinnett College.
