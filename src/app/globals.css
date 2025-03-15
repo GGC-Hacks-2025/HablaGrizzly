@@ -1,0 +1,176 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 157 100% 22%; /* GGC Green #00704a */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 157 85% 95%;
+    --accent-foreground: 157 100% 22%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 157 100% 22%;
+    --radius: 0.75rem;
+    --chat-user: 157 100% 22%;
+    --chat-user-foreground: 0 0% 100%;
+    --chat-assistant: 0 0% 97%;
+    --chat-assistant-foreground: 240 10% 3.9%;
+  }
+
+  .dark {
+    --background: 220 13% 13%; /* DeepSeek background color #1e2023 */
+    --foreground: 0 0% 95%;
+    --card: 220 13% 18%; /* Slightly lighter for cards */
+    --card-foreground: 0 0% 95%;
+    --popover: 220 13% 18%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 157 70% 35%; /* GGC Green for dark mode */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 13% 23%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 220 13% 23%;
+    --muted-foreground: 240 5% 84.9%;
+    --accent: 157 70% 18%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 85.7% 97.3%;
+    --border: 220 13% 23%;
+    --input: 220 13% 23%;
+    --ring: 157 70% 35%;
+    --chat-user: 157 70% 35%;
+    --chat-user-foreground: 0 0% 100%;
+    --chat-assistant: 220 13% 23%;
+    --chat-assistant-foreground: 0 0% 98%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Custom Typewriter Animation */
+.typewriter {
+  display: inline-block;
+}
+
+.typewriter-cursor {
+  display: inline-block;
+  width: 0.5em;
+  height: 1em;
+  background-color: currentColor;
+  margin-left: 0.1em;
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  from, to { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Chat bubbles */
+.chat-bubble {
+  max-width: 80%;
+  padding: 1rem;
+  border-radius: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.user-bubble {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border-top-right-radius: 0;
+  margin-left: auto;
+}
+
+.assistant-bubble {
+  background-color: hsl(var(--secondary));
+  color: hsl(var(--foreground));
+  border-top-left-radius: 0;
+}
+
+/* File upload and camera button styles */
+.upload-button {
+  @apply flex flex-col items-center justify-center gap-1 px-4 py-3 rounded-lg border-2 border-dashed;
+  min-width: 80px;
+  transition: all 0.2s ease;
+}
+
+.upload-button:hover {
+  @apply border-primary bg-primary/5;
+}
+
+/* Dropbox-like upload area */
+.dropbox-upload {
+  @apply flex flex-col items-center justify-center gap-3 p-6 mb-4 rounded-lg border-2 border-dashed border-primary/30 bg-primary/5 text-center transition-all;
+  min-height: 150px;
+}
+
+.dropbox-upload:hover {
+  @apply border-primary/70 bg-primary/10;
+}
+
+.upload-icon {
+  @apply h-12 w-12 text-primary/70;
+}
+
+.camera-button {
+  @apply flex items-center justify-center gap-2 rounded-lg py-3 px-4 bg-primary text-primary-foreground hover:bg-primary/90 transition-colors;
+}
+
+.upload-area-container {
+  @apply fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4;
+}
+
+.upload-area {
+  @apply bg-card p-6 rounded-lg shadow-lg max-w-md w-full space-y-4 border;
+}
+
+.upload-area-header {
+  @apply text-xl font-semibold flex items-center justify-between;
+}
+
+.drag-indicator {
+  @apply mt-2 text-sm text-muted-foreground;
+}
+
+/* DeepSeek style chat input */
+.deepseek-input {
+  @apply bg-zinc-800 dark:bg-zinc-800 border-none rounded-xl;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(155, 155, 155, 0.5);
+  border-radius: 20px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(155, 155, 155, 0.7);
+}
