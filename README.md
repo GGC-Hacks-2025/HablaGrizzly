@@ -2,6 +2,8 @@
 ![HablaGrizzly Logo](./path/to/your/image.png)
 
 <hr>
+## Project Link
+https://hablagrizzly-887847427102.us-central1.run.app/
 
 ## Project Description
 **HablaGrizzly** is an AI-powered translation chatbot designed to help users translate GGC resources between English and Spanish. Whether you need to translate text or extract and translate text from images, HablaGrizzly makes it easy. No sign-up required!
