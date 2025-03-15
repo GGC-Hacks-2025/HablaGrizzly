@@ -1,8 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  /* config options here */
-  output: 'standalone', // Optimized for container deployments
-  distDir: process.env.NODE_ENV === "production" ? "build" : ".next",
+  output: 'standalone',
   images: {
     domains: [
       "source.unsplash.com",
@@ -31,6 +29,9 @@ const nextConfig = {
       },
     ],
   },
+  experimental: {
+    serverActions: true,
+  }
 };
 
 module.exports = nextConfig;

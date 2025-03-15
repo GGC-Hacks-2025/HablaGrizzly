@@ -1,32 +1,35 @@
-FROM node:20-slim AS base
+FROM node:20-slim AS builder
 
 WORKDIR /app
 
-# Copy package files
-COPY package.json ./
-
 # Install dependencies
-RUN npm install
+COPY package*.json ./
+RUN npm ci
 
-# Copy the rest of the application
+# Copy source code
 COPY . .
 
-# Build the Next.js application
+# Set environment variables
 ENV NEXT_TELEMETRY_DISABLED 1
 ENV NODE_ENV production
+
+# Build application
 RUN npm run build
 
-# Set up the production environment
-RUN groupadd --system --gid 1001 nodejs
-RUN useradd --system --uid 1001 nextjs
+# Production image, copy all the files and run next
+FROM node:20-slim AS runner
+WORKDIR /app
 
-# Set permissions
-RUN mkdir .next
-RUN chown nextjs:nodejs .next
+ENV NODE_ENV production
+ENV NEXT_TELEMETRY_DISABLED 1
 
-# Copy build output and static files
-RUN cp -r .next/static .next/standalone/.next/static
-RUN chown -R nextjs:nodejs .next/standalone
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+# Copy necessary files from builder
+COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 USER nextjs
 
@@ -35,4 +38,4 @@ EXPOSE 3000
 ENV PORT 3000
 ENV HOSTNAME "0.0.0.0"
 
-CMD ["node", ".next/standalone/server.js"] 
+CMD ["node", "server.js"] 
