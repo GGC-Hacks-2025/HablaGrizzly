@@ -2,6 +2,7 @@
 ![HablaGrizzly Logo](./path/to/your/image.png)
 
 <hr>
+
 ## Project Link
 https://hablagrizzly-887847427102.us-central1.run.app/
 
